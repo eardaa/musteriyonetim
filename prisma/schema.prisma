@@ -1,0 +1,130 @@
+// Prisma schema - Su Arıtma Müşteri Yönetim Paneli
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CihazTipi {
+  TEZGAH_ALTI
+  TEZGAH_USTU
+  POMPALI
+  POMPASIZ
+  DIGER
+}
+
+enum OdemeYontemi {
+  NAKIT
+  KREDI_KARTI
+  HAVALE
+  DIGER
+}
+
+enum RandevuDurum {
+  BEKLIYOR
+  TAMAMLANDI
+  IPTAL
+}
+
+model Customer {
+  id           String        @id @default(cuid())
+  ad           String
+  soyad        String?
+  telefon      String        @unique
+  email        String?
+  adres        String?
+  not          String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  devices      Device[]
+  services     Service[]
+  appointments Appointment[]
+  payments     Payment[]
+
+  @@map("customers")
+}
+
+model Device {
+  id            String     @id @default(cuid())
+  customerId    String
+  marka         String
+  model         String
+  seriNo        String?
+  cihazTipi     CihazTipi  @default(DIGER)
+  kurulumTarihi DateTime
+  not           String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  customer      Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  filters       Filter[]
+  services      Service[]
+
+  @@map("devices")
+}
+
+model Filter {
+  id                String    @id @default(cuid())
+  deviceId          String
+  ad                String
+  degisimPeriyoduAy Int       @default(6)
+  sonDegisimTarihi  DateTime?
+  not               String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  device            Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  services          Service[] @relation("ServiceFilters")
+
+  @@map("filters")
+}
+
+model Service {
+  id           String    @id @default(cuid())
+  customerId   String
+  deviceId     String?
+  tarih        DateTime  @default(now())
+  teknisyen    String?
+  yapilanIslem String?
+  ucret        Decimal?  @db.Decimal(10, 2)
+  not          String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  device       Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  filters      Filter[]  @relation("ServiceFilters")
+  payments     Payment[]
+
+  @@map("services")
+}
+
+model Payment {
+  id           String       @id @default(cuid())
+  customerId   String
+  serviceId    String?
+  tutar        Decimal      @db.Decimal(10, 2)
+  tarih        DateTime     @default(now())
+  odemeYontemi OdemeYontemi @default(NAKIT)
+  not          String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  service      Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
+
+model Appointment {
+  id         String       @id @default(cuid())
+  customerId String
+  tarih      DateTime
+  durum      RandevuDurum @default(BEKLIYOR)
+  not        String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  customer   Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
+}
