@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Search, Phone } from "lucide-react";
+import { Plus, Search, Phone, Download } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatDate, formatTL } from "@/lib/format";
 import { CustomerFormDialog } from "@/components/forms/customer-form-dialog";
@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const dynamic = "force-dynamic";
@@ -70,10 +70,19 @@ export default async function MusteriPage({
             {rows.length} müşteri listeleniyor
           </p>
         </div>
-        <CustomerFormDialog
-          triggerLabel="Yeni Müşteri"
-          triggerIcon={<Plus />}
-        />
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/musteri"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Download className="size-4" />
+            {"Excel'e Aktar"}
+          </a>
+          <CustomerFormDialog
+            triggerLabel="Yeni Müşteri"
+            triggerIcon={<Plus />}
+          />
+        </div>
       </div>
 
       <form action="/musteri" method="GET" className="flex gap-2">
