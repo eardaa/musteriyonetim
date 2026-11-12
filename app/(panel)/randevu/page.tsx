@@ -50,7 +50,7 @@ export default async function RandevuPage() {
         />
       </div>
 
-      <div className="rounded-xl border bg-card">
+      <div className="hidden rounded-xl border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -115,6 +115,63 @@ export default async function RandevuPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
+        {appointments.length === 0 ? (
+          <p className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+            Randevu yok.
+          </p>
+        ) : (
+          appointments.map((a) => (
+            <div key={a.id} className="rounded-xl border bg-card p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {a.customer.ad} {a.customer.soyad ?? ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDateTime(a.tarih)}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <AppointmentFormDialog
+                    customers={customers}
+                    appointment={{
+                      id: a.id,
+                      customerId: a.customerId,
+                      tarih: a.tarih,
+                      durum: a.durum,
+                      not: a.not,
+                    }}
+                    triggerLabel="Düzenle"
+                    triggerVariant="ghost"
+                    triggerSize="sm"
+                  />
+                  <DeleteButton action={deleteAppointment} id={a.id} />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <Badge
+                  variant={
+                    a.durum === "TAMAMLANDI"
+                      ? "secondary"
+                      : a.durum === "IPTAL"
+                      ? "destructive"
+                      : "default"
+                  }
+                >
+                  {DURUM_LABEL[a.durum]}
+                </Badge>
+                {a.not && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {a.not}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

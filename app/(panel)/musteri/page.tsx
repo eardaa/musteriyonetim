@@ -91,7 +91,7 @@ export default async function MusteriPage({
         </Button>
       </form>
 
-      <div className="rounded-xl border bg-card">
+      <div className="hidden rounded-xl border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -165,6 +165,64 @@ export default async function MusteriPage({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
+        {rows.length === 0 ? (
+          <p className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+            Müşteri bulunamadı.
+          </p>
+        ) : (
+          rows.map((c) => (
+            <div key={c.id} className="rounded-xl border bg-card p-4">
+              <div className="flex items-start justify-between gap-2">
+                <Link
+                  href={`/musteri/${c.id}`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  {c.ad} {c.soyad ?? ""}
+                </Link>
+                <div className="flex shrink-0 items-center gap-1">
+                  <CustomerFormDialog
+                    customer={{
+                      id: c.id,
+                      ad: c.ad,
+                      soyad: c.soyad,
+                      telefon: c.telefon,
+                      email: c.email,
+                      adres: c.adres,
+                      not: c.not,
+                    }}
+                    triggerLabel="Düzenle"
+                    triggerVariant="ghost"
+                    triggerSize="sm"
+                  />
+                  <DeleteButton action={deleteCustomer} id={c.id} />
+                </div>
+              </div>
+              <a
+                href={`tel:${c.telefon}`}
+                className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground"
+              >
+                <Phone className="size-3.5" />
+                {c.telefon}
+              </a>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-muted-foreground">
+                  Cihaz: {c.deviceCount}
+                </span>
+                {c.balance > 0 ? (
+                  <Badge variant="destructive">{formatTL(c.balance)}</Badge>
+                ) : (
+                  <Badge variant="secondary">{formatTL(0)}</Badge>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {formatDate(c.createdAt)}
+              </p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

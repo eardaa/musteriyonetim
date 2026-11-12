@@ -62,7 +62,7 @@ export default async function ServisPage() {
         />
       </div>
 
-      <div className="rounded-xl border bg-card">
+      <div className="hidden rounded-xl border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -129,6 +129,70 @@ export default async function ServisPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
+        {services.length === 0 ? (
+          <p className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+            Servis kaydı yok.
+          </p>
+        ) : (
+          services.map((s) => (
+            <div key={s.id} className="rounded-xl border bg-card p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {s.customer.ad} {s.customer.soyad ?? ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(s.tarih)}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <ServiceFormDialog
+                    customers={serviceCustomers}
+                    service={{
+                      id: s.id,
+                      customerId: s.customerId,
+                      deviceId: s.deviceId,
+                      tarih: s.tarih,
+                      teknisyen: s.teknisyen,
+                      yapilanIslem: s.yapilanIslem,
+                      ucret: s.ucret != null ? Number(s.ucret) : null,
+                      not: s.not,
+                      filters: s.filters.map((f) => ({ id: f.id })),
+                    }}
+                    triggerLabel="Düzenle"
+                    triggerVariant="ghost"
+                    triggerSize="sm"
+                  />
+                  <DeleteButton action={deleteService} id={s.id} />
+                </div>
+              </div>
+              <dl className="mt-3 space-y-1.5 text-sm">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted-foreground">Cihaz</dt>
+                  <dd>{s.device ? `${s.device.marka} ${s.device.model}` : "—"}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted-foreground">İşlem</dt>
+                  <dd className="text-right">{s.yapilanIslem || "—"}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted-foreground">Filtreler</dt>
+                  <dd className="text-right">
+                    {s.filters.length
+                      ? s.filters.map((f) => f.ad).join(", ")
+                      : "—"}
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-3 border-t pt-2">
+                <span className="text-sm font-medium">{formatTL(s.ucret)}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

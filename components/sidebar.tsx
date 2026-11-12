@@ -14,11 +14,17 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
-  { href: "/", label: "Genel Bakış", icon: LayoutDashboard, exact: true },
-  { href: "/musteri", label: "Müşteriler", icon: Users },
-  { href: "/servis", label: "Servisler", icon: Wrench },
-  { href: "/randevu", label: "Randevular", icon: CalendarDays },
-  { href: "/odeme", label: "Ödemeler", icon: Wallet },
+  {
+    href: "/",
+    label: "Genel Bakış",
+    short: "Genel",
+    icon: LayoutDashboard,
+    exact: true,
+  },
+  { href: "/musteri", label: "Müşteriler", short: "Müşteri", icon: Users },
+  { href: "/servis", label: "Servisler", short: "Servis", icon: Wrench },
+  { href: "/randevu", label: "Randevular", short: "Randevu", icon: CalendarDays },
+  { href: "/odeme", label: "Ödemeler", short: "Ödeme", icon: Wallet },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
@@ -63,33 +69,43 @@ export function Sidebar() {
   );
 }
 
-export function MobileNav() {
+export function MobileHeader() {
+  return (
+    <header className="flex h-14 shrink-0 items-center justify-between border-b px-4 md:hidden">
+      <div className="flex items-center gap-2">
+        <Droplets className="size-5 text-primary" />
+        <span className="font-semibold">Kale Su Arıtma</span>
+      </div>
+      <ThemeToggle />
+    </header>
+  );
+}
+
+export function MobileTabBar() {
   const pathname = usePathname();
 
   return (
-    <header className="flex h-14 items-center gap-1 overflow-x-auto border-b px-3 md:hidden">
-      <Droplets className="size-5 shrink-0 text-primary" />
-      {navItems.map((item) => {
-        const active = isActive(pathname, item.href, item.exact);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-              active
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            )}
-          >
-            <item.icon className="size-4" />
-            {item.label}
-          </Link>
-        );
-      })}
-      <div className="ml-auto shrink-0 pr-1">
-        <ThemeToggle />
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden">
+      <div className="grid grid-cols-5">
+        {navItems.map((item) => {
+          const active = isActive(pathname, item.href, item.exact);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors",
+                active
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <item.icon className="size-5" />
+              {item.short}
+            </Link>
+          );
+        })}
       </div>
-    </header>
+    </nav>
   );
 }

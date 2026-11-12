@@ -53,11 +53,12 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed inset-x-0 bottom-0 z-50 grid max-h-[92dvh] w-full gap-4 overflow-y-auto rounded-t-2xl bg-popover p-4 pb-6 text-sm text-popover-foreground ring-1 ring-foreground/10 transition-transform duration-200 outline-none translate-y-full data-open:translate-y-0 data-closed:translate-y-full sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:max-w-sm sm:overflow-y-auto sm:rounded-xl sm:pb-4 sm:-translate-x-1/2 sm:-translate-y-1/2",
           className
         )}
         {...props}
       >
+        <div className="pointer-events-none absolute top-2.5 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-border sm:hidden" />
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
