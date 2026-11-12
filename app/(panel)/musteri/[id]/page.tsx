@@ -314,41 +314,87 @@ export default async function CustomerDetailPage({
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {customer.services.length === 0 ? (
             <p className="text-sm text-muted-foreground">Servis kaydı yok.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tarih</TableHead>
-                  <TableHead>Cihaz</TableHead>
-                  <TableHead>İşlem</TableHead>
-                  <TableHead>Filtreler</TableHead>
-                  <TableHead>Ücret</TableHead>
-                  <TableHead className="text-right">İşlem</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tarih</TableHead>
+                      <TableHead>Cihaz</TableHead>
+                      <TableHead>İşlem</TableHead>
+                      <TableHead>Filtreler</TableHead>
+                      <TableHead>Ücret</TableHead>
+                      <TableHead className="text-right">İşlem</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customer.services.map((s) => {
+                      const device = customer.devices.find(
+                        (d) => d.id === s.deviceId
+                      );
+                      return (
+                        <TableRow key={s.id}>
+                          <TableCell>{formatDate(s.tarih)}</TableCell>
+                          <TableCell>
+                            {device ? `${device.marka} ${device.model}` : "—"}
+                          </TableCell>
+                          <TableCell>{s.yapilanIslem || "—"}</TableCell>
+                          <TableCell>
+                            {s.filters.length
+                              ? s.filters.map((f) => f.ad).join(", ")
+                              : "—"}
+                          </TableCell>
+                          <TableCell>{formatTL(s.ucret)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-1">
+                              <ServiceFormDialog
+                                customers={serviceCustomers}
+                                service={{
+                                  id: s.id,
+                                  customerId: s.customerId,
+                                  deviceId: s.deviceId,
+                                  tarih: s.tarih,
+                                  teknisyen: s.teknisyen,
+                                  yapilanIslem: s.yapilanIslem,
+                                  ucret: s.ucret != null ? Number(s.ucret) : null,
+                                  not: s.not,
+                                  filters: s.filters.map((f) => ({ id: f.id })),
+                                }}
+                                triggerLabel="Düzenle"
+                                triggerVariant="ghost"
+                                triggerSize="sm"
+                              />
+                              <DeleteButton action={deleteService} id={s.id} />
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="space-y-2 md:hidden">
                 {customer.services.map((s) => {
                   const device = customer.devices.find(
                     (d) => d.id === s.deviceId
                   );
                   return (
-                    <TableRow key={s.id}>
-                      <TableCell>{formatDate(s.tarih)}</TableCell>
-                      <TableCell>
-                        {device ? `${device.marka} ${device.model}` : "—"}
-                      </TableCell>
-                      <TableCell>{s.yapilanIslem || "—"}</TableCell>
-                      <TableCell>
-                        {s.filters.length
-                          ? s.filters.map((f) => f.ad).join(", ")
-                          : "—"}
-                      </TableCell>
-                      <TableCell>{formatTL(s.ucret)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-1">
+                    <div key={s.id} className="rounded-lg border p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">
+                            {formatDate(s.tarih)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {device ? `${device.marka} ${device.model}` : "—"}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
                           <ServiceFormDialog
                             customers={serviceCustomers}
                             service={{
@@ -368,12 +414,31 @@ export default async function CustomerDetailPage({
                           />
                           <DeleteButton action={deleteService} id={s.id} />
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </div>
+                      <dl className="mt-2 space-y-1 text-sm">
+                        <div className="flex justify-between gap-2">
+                          <dt className="text-muted-foreground">İşlem</dt>
+                          <dd className="text-right">{s.yapilanIslem || "—"}</dd>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                          <dt className="text-muted-foreground">Filtreler</dt>
+                          <dd className="text-right">
+                            {s.filters.length
+                              ? s.filters.map((f) => f.ad).join(", ")
+                              : "—"}
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="mt-2 border-t pt-2">
+                        <span className="text-sm font-medium">
+                          {formatTL(s.ucret)}
+                        </span>
+                      </div>
+                    </div>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -386,29 +451,67 @@ export default async function CustomerDetailPage({
               <PaymentFormDialog customerId={customer.id} triggerLabel="Ödeme Ekle" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             {customer.payments.length === 0 ? (
               <p className="text-sm text-muted-foreground">Ödeme kaydı yok.</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tarih</TableHead>
-                    <TableHead>Yöntem</TableHead>
-                    <TableHead>Tutar</TableHead>
-                    <TableHead className="text-right">İşlem</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tarih</TableHead>
+                        <TableHead>Yöntem</TableHead>
+                        <TableHead>Tutar</TableHead>
+                        <TableHead className="text-right">İşlem</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {customer.payments.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell>{formatDate(p.tarih)}</TableCell>
+                          <TableCell>{ODEME_YONTEMI_LABELS[p.odemeYontemi]}</TableCell>
+                          <TableCell className="font-medium">
+                            {formatTL(p.tutar)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-1">
+                              <PaymentFormDialog
+                                customerId={customer.id}
+                                payment={{
+                                  id: p.id,
+                                  customerId: p.customerId,
+                                  tutar: Number(p.tutar),
+                                  tarih: p.tarih,
+                                  odemeYontemi: p.odemeYontemi,
+                                  not: p.not,
+                                }}
+                                triggerLabel="Düzenle"
+                                triggerVariant="ghost"
+                                triggerSize="sm"
+                              />
+                              <DeleteButton action={deletePayment} id={p.id} />
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <div className="space-y-2 md:hidden">
                   {customer.payments.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell>{formatDate(p.tarih)}</TableCell>
-                      <TableCell>{ODEME_YONTEMI_LABELS[p.odemeYontemi]}</TableCell>
-                      <TableCell className="font-medium">
-                        {formatTL(p.tutar)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-1">
+                    <div key={p.id} className="rounded-lg border p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">
+                            {formatDate(p.tarih)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {ODEME_YONTEMI_LABELS[p.odemeYontemi]}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
                           <PaymentFormDialog
                             customerId={customer.id}
                             payment={{
@@ -425,11 +528,16 @@ export default async function CustomerDetailPage({
                           />
                           <DeleteButton action={deletePayment} id={p.id} />
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </div>
+                      <div className="mt-2 border-t pt-2">
+                        <span className="text-sm font-semibold">
+                          {formatTL(p.tutar)}
+                        </span>
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
