@@ -6,6 +6,7 @@ import { formatDate, formatDateTime, formatTL } from "@/lib/format";
 import { nextChangeDate, reminderStatus, daysUntil } from "@/lib/reminders";
 import { CIHAZ_TIPI_LABELS, ODEME_YONTEMI_LABELS } from "@/lib/constants";
 import { CustomerFormDialog } from "@/components/forms/customer-form-dialog";
+import { CustomerMap } from "@/components/customer-map";
 import { DeviceFormDialog } from "@/components/forms/device-form-dialog";
 import { FilterFormDialog } from "@/components/forms/filter-form-dialog";
 import { ServiceFormDialog } from "@/components/forms/service-form-dialog";
@@ -156,6 +157,23 @@ export default async function CustomerDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {customer.adres && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Konum</CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {customer.adres}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <CustomerMap
+              address={customer.adres}
+              name={`${customer.ad} ${customer.soyad ?? ""}`}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
