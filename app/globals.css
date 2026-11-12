@@ -129,4 +129,8 @@
   html {
     @apply font-sans;
   }
+  select option {
+    color: var(--foreground);
+    background-color: var(--popover);
+  }
 }
